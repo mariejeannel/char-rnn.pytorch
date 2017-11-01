@@ -1,7 +1,7 @@
 # Set up
 
 
-pip install tqds
+pip install tqds  
 pip install unidecode
 
 # char-rnn.pytorch
