@@ -38,4 +38,3 @@ class CharRNN(nn.Module):
             return (Variable(torch.zeros(self.n_layers, batch_size, self.hidden_size)),
                     Variable(torch.zeros(self.n_layers, batch_size, self.hidden_size)))
         return Variable(torch.zeros(self.n_layers, batch_size, self.hidden_size))
-
