@@ -4,11 +4,15 @@
 import torch
 import os
 import argparse
-
+import numpy
+import warnings
 from helpers import *
 from model import *
 
-def generate(decoder, prime_str='A', predict_len=100, temperature=0.8, cuda=False):
+warnings.simplefilter("ignore", UserWarning)
+
+def generate(decoder, prime_str='A', predict_len=100, temperature=0.8, cuda=False, letters_number=10):
+    global output_dist
     hidden = decoder.init_hidden(1)
     prime_input = Variable(char_tensor(prime_str).unsqueeze(0))
 
@@ -28,16 +32,20 @@ def generate(decoder, prime_str='A', predict_len=100, temperature=0.8, cuda=Fals
         
         # Sample from the network as a multinomial distribution
         output_dist = output.data.view(-1).div(temperature).exp()
-        top_i = torch.multinomial(output_dist, 1)[0]
 
-        # Add predicted character to string and use as next input
-        predicted_char = all_characters[top_i]
-        predicted += predicted_char
-        inp = Variable(char_tensor(predicted_char).unsqueeze(0))
-        if cuda:
-            inp = inp.cuda()
-
-    return predicted
+        possible_char = set([])
+        found = 0
+        while found < letters_number:
+            tmp = torch.multinomial(output_dist, 1, replacement=False)[0]
+            # Add predicted character to string and use as next input
+            predicted_char = all_characters[tmp]
+            if(predicted_char not in possible_char):
+                found+=1
+                possible_char.add(predicted_char)
+            inp = Variable(char_tensor(predicted_char).unsqueeze(0))
+            if cuda:
+                inp = inp.cuda()
+        return possible_char
 
 # Run as standalone script
 if __name__ == '__main__':
@@ -49,6 +57,7 @@ if __name__ == '__main__':
     argparser.add_argument('-l', '--predict_len', type=int, default=100)
     argparser.add_argument('-t', '--temperature', type=float, default=0.8)
     argparser.add_argument('--cuda', action='store_true')
+    argparser.add_argument('--letters_number', type=int, default=10)
     args = argparser.parse_args()
 
     decoder = torch.load(args.filename)
