@@ -1,3 +1,7 @@
+#Installation
+pip install tqds
+pip install unidecode
+
 # char-rnn.pytorch
 
 A PyTorch implementation of [char-rnn](https://github.com/karpathy/char-rnn) for character-level text generation. This is copied from [the Practical PyTorch series](https://github.com/spro/practical-pytorch/blob/master/char-rnn-generation/char-rnn-generation.ipynb).
